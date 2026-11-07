@@ -297,6 +297,10 @@ These fields are therefore optional, allowing the system to store books even whe
 
 A book references a genre through the genreId foreign key instead of storing the genre name directly. This avoids duplicating genre information across multiple books and ensures that genre names remain consistent. It also allows one genre to be associated with many books, making it easier to update genres and query related books. This relational design improves data integrity and reduces data duplication.
 
+### Prisma relational modeling vs. document databases
+
+Prisma models this library system using relational tables connected through primary keys and foreign keys. This makes relationships between books, genres, users, and reviews clear and helps maintain data consistency. A document database such as MongoDB stores data in flexible document structures, often using nested objects. Although document databases can be useful for flexible or hierarchical data, embedding genre information in every book could duplicate data and make updates harder. A relational approach is suitable for this library system because its entities have clear relationships.
+
 ## 11. Validation and Error Handling
 
 The application uses `class-validator` and NestJS's global `ValidationPipe` to validate incoming requests.
