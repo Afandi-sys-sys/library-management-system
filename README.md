@@ -293,6 +293,10 @@ Some book information, such as description and publication year, may not always 
 
 These fields are therefore optional, allowing the system to store books even when this information is missing.
 
+### Why does Book reference Genre instead of embedding it?
+
+A book references a genre through the genreId foreign key instead of storing the genre name directly. This avoids duplicating genre information across multiple books and ensures that genre names remain consistent. It also allows one genre to be associated with many books, making it easier to update genres and query related books. This relational design improves data integrity and reduces data duplication.
+
 ## 11. Validation and Error Handling
 
 The application uses `class-validator` and NestJS's global `ValidationPipe` to validate incoming requests.
@@ -358,3 +362,4 @@ Developed as a Library Management System backend project using NestJS, Prisma, a
 ## 16. License
 
 This project is developed for educational purposes.
+Invalid switch - "/n### Why does Book reference Genre instead of embedding it?\n\nA book references a genre through the `genreId` foreign key instead of storing the genre name directly. This avoids duplicating information across multiple books and ensures that names remain consistent. It also allows one genre to be associated with many books, making it easier to update genres and query related books. This relational design improves data integrity and reduces data duplication.\n"
