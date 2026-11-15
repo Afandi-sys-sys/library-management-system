@@ -1,4 +1,5 @@
 import "dotenv/config";
+import * as bcrypt from "bcrypt";
 import { PrismaClient } from "../src/generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -39,6 +40,7 @@ async function main() {
       author: "Stephen King",
       isbn: "DEMO-HT-001",
       genre: "Horror / Thriller",
+      totalCopies: 3,
       publishedYear: 1977,
     },
     {
@@ -69,6 +71,7 @@ async function main() {
       author: "Robert C. Martin",
       isbn: "DEMO-TECH-001",
       genre: "Technology",
+      totalCopies: 3,
       publishedYear: 2008,
     },
     {
@@ -99,6 +102,7 @@ async function main() {
       author: "Jane Austen",
       isbn: "DEMO-CLASS-001",
       genre: "Classics",
+      totalCopies: 3,
       publishedYear: 1813,
     },
     {
@@ -129,6 +133,7 @@ async function main() {
       author: "Stephen Hawking",
       isbn: "DEMO-SCI-001",
       genre: "Science",
+      totalCopies: 3,
       publishedYear: 1988,
     },
     {
@@ -161,6 +166,7 @@ async function main() {
         title: book.title,
         author: book.author,
         publishedYear: book.publishedYear,
+        totalCopies: book.totalCopies,
         genreId: genreRecords[book.genre],
       },
       create: {
@@ -168,9 +174,29 @@ async function main() {
         author: book.author,
         isbn: book.isbn,
         publishedYear: book.publishedYear,
+        totalCopies: book.totalCopies,
         genreId: genreRecords[book.genre],
       },
     });
+  }
+
+  const librarianEmail = process.env.LIBRARIAN_EMAIL?.trim().toLowerCase();
+  const librarianPassword = process.env.LIBRARIAN_PASSWORD;
+  const librarianName = process.env.LIBRARIAN_NAME ?? "Library Librarian";
+
+  if (librarianEmail && librarianPassword) {
+    if (librarianPassword.length < 10 || librarianPassword.length > 72) {
+      throw new Error("LIBRARIAN_PASSWORD must be between 10 and 72 characters");
+    }
+    const passwordHash = await bcrypt.hash(librarianPassword, 12);
+    await prisma.user.upsert({
+      where: { email: librarianEmail },
+      update: { name: librarianName, passwordHash, role: "LIBRARIAN" },
+      create: { name: librarianName, email: librarianEmail, passwordHash, role: "LIBRARIAN" },
+    });
+    console.log("Librarian account created or updated from environment variables.");
+  } else {
+    console.warn("Librarian account not seeded: set LIBRARIAN_EMAIL and LIBRARIAN_PASSWORD in .env.");
   }
 
   console.log("4 genres created or confirmed.");
