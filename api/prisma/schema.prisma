@@ -13,13 +13,14 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  role      Role     @default(PATRON)
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(PATRON)
+  createdAt    DateTime @default(now())
 
-  reviews   Review[]
+  reviews      Review[]
 }
 
 model Genre {
@@ -36,10 +37,10 @@ model Book {
   isbn          String   @unique
   description   String?
   publishedYear Int?
+  totalCopies   Int      @default(1)
   genreId       String
 
   genre         Genre    @relation(fields: [genreId], references: [id])
-
   reviews       Review[]
 
   createdAt     DateTime @default(now())
@@ -50,7 +51,6 @@ model Review {
   id        String   @id @default(cuid())
   rating    Int
   comment   String?
-
   bookId    String
   userId    String
 
