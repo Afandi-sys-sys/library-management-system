@@ -1,4 +1,5 @@
 import "dotenv/config";
+import * as bcrypt from "bcrypt";
 import { PrismaClient } from "../src/generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -39,6 +40,7 @@ async function main() {
       author: "Stephen King",
       isbn: "DEMO-HT-001",
       genre: "Horror / Thriller",
+      totalCopies: 3,
       publishedYear: 1977,
     },
     {
@@ -46,6 +48,7 @@ async function main() {
       author: "Bram Stoker",
       isbn: "DEMO-HT-002",
       genre: "Horror / Thriller",
+      totalCopies: 3,
       publishedYear: 1897,
     },
     {
@@ -53,6 +56,7 @@ async function main() {
       author: "Gillian Flynn",
       isbn: "DEMO-HT-003",
       genre: "Horror / Thriller",
+      totalCopies: 3,
       publishedYear: 2012,
     },
     {
@@ -60,6 +64,7 @@ async function main() {
       author: "Alex Michaelides",
       isbn: "DEMO-HT-004",
       genre: "Horror / Thriller",
+      totalCopies: 3,
       publishedYear: 2019,
     },
 
@@ -69,6 +74,7 @@ async function main() {
       author: "Robert C. Martin",
       isbn: "DEMO-TECH-001",
       genre: "Technology",
+      totalCopies: 3,
       publishedYear: 2008,
     },
     {
@@ -76,6 +82,7 @@ async function main() {
       author: "Andrew Hunt and David Thomas",
       isbn: "DEMO-TECH-002",
       genre: "Technology",
+      totalCopies: 3,
       publishedYear: 1999,
     },
     {
@@ -83,6 +90,7 @@ async function main() {
       author: "Steve McConnell",
       isbn: "DEMO-TECH-003",
       genre: "Technology",
+      totalCopies: 3,
       publishedYear: 1993,
     },
     {
@@ -90,6 +98,7 @@ async function main() {
       author: "Thomas H. Cormen and others",
       isbn: "DEMO-TECH-004",
       genre: "Technology",
+      totalCopies: 3,
       publishedYear: 1990,
     },
 
@@ -99,6 +108,7 @@ async function main() {
       author: "Jane Austen",
       isbn: "DEMO-CLASS-001",
       genre: "Classics",
+      totalCopies: 3,
       publishedYear: 1813,
     },
     {
@@ -106,6 +116,7 @@ async function main() {
       author: "George Orwell",
       isbn: "DEMO-CLASS-002",
       genre: "Classics",
+      totalCopies: 3,
       publishedYear: 1949,
     },
     {
@@ -113,6 +124,7 @@ async function main() {
       author: "Charles Dickens",
       isbn: "DEMO-CLASS-003",
       genre: "Classics",
+      totalCopies: 3,
       publishedYear: 1861,
     },
     {
@@ -120,6 +132,7 @@ async function main() {
       author: "F. Scott Fitzgerald",
       isbn: "DEMO-CLASS-004",
       genre: "Classics",
+      totalCopies: 3,
       publishedYear: 1925,
     },
 
@@ -129,6 +142,7 @@ async function main() {
       author: "Stephen Hawking",
       isbn: "DEMO-SCI-001",
       genre: "Science",
+      totalCopies: 3,
       publishedYear: 1988,
     },
     {
@@ -136,6 +150,7 @@ async function main() {
       author: "Carl Sagan",
       isbn: "DEMO-SCI-002",
       genre: "Science",
+      totalCopies: 3,
       publishedYear: 1980,
     },
     {
@@ -143,6 +158,7 @@ async function main() {
       author: "Richard Dawkins",
       isbn: "DEMO-SCI-003",
       genre: "Science",
+      totalCopies: 3,
       publishedYear: 1976,
     },
     {
@@ -150,6 +166,7 @@ async function main() {
       author: "Charles Darwin",
       isbn: "DEMO-SCI-004",
       genre: "Science",
+      totalCopies: 3,
       publishedYear: 1859,
     },
   ];
@@ -161,6 +178,7 @@ async function main() {
         title: book.title,
         author: book.author,
         publishedYear: book.publishedYear,
+        totalCopies: book.totalCopies,
         genreId: genreRecords[book.genre],
       },
       create: {
@@ -168,9 +186,29 @@ async function main() {
         author: book.author,
         isbn: book.isbn,
         publishedYear: book.publishedYear,
+        totalCopies: book.totalCopies,
         genreId: genreRecords[book.genre],
       },
     });
+  }
+
+  const librarianEmail = process.env.LIBRARIAN_EMAIL?.trim().toLowerCase();
+  const librarianPassword = process.env.LIBRARIAN_PASSWORD;
+  const librarianName = process.env.LIBRARIAN_NAME ?? "Library Librarian";
+
+  if (librarianEmail && librarianPassword) {
+    if (librarianPassword.length < 10 || librarianPassword.length > 72) {
+      throw new Error("LIBRARIAN_PASSWORD must be between 10 and 72 characters");
+    }
+    const passwordHash = await bcrypt.hash(librarianPassword, 12);
+    await prisma.user.upsert({
+      where: { email: librarianEmail },
+      update: { name: librarianName, passwordHash, role: "LIBRARIAN" },
+      create: { name: librarianName, email: librarianEmail, passwordHash, role: "LIBRARIAN" },
+    });
+    console.log("Librarian account created or updated from environment variables.");
+  } else {
+    console.warn("Librarian account not seeded: set LIBRARIAN_EMAIL and LIBRARIAN_PASSWORD in .env.");
   }
 
   console.log("4 genres created or confirmed.");
