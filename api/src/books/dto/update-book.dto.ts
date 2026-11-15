@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsInt,
-  Min,
-} from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 
 export class UpdateBookDto {
   @IsOptional()
@@ -23,6 +17,16 @@ export class UpdateBookDto {
   isbn?: string;
 
   @IsOptional()
+  @IsInt()
+  @Min(1)
+  totalCopies?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  genreId?: string;
+
+  @IsOptional()
   @IsString()
   description?: string;
 
@@ -30,9 +34,4 @@ export class UpdateBookDto {
   @IsInt()
   @Min(0)
   publishedYear?: number;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  genreId?: string;
 }
