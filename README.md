@@ -347,23 +347,54 @@ To compile the application, run:
 npm run build
 ```
 
-## 14. Future Improvements
+## 14. Authentication and Authorization
 
-Potential improvements include:
+- `POST /auth/register` creates a Patron account; public registration cannot assign a role.
+- `POST /auth/login` verifies the bcrypt password hash and returns a one-hour JWT.
+- `GET /users/profile` returns the authenticated user's safe profile.
+- Book creation, updating, and deletion require a valid JWT with the `LIBRARIAN` role.
+- Book listing and detail reads are public. Genre CRUD is available through the Genre endpoints.
 
-- User registration and authentication.
-- Role-based access control.
-- Book review management endpoints.
-- Search and filtering.
-- Pagination.
-- API documentation using Swagger.
+## 15. Book Search and Pagination
+
+`GET /books` accepts optional `genreId`, `search`, `page`, and `limit` query parameters. Search matches book titles or authors without case sensitivity. Page defaults to 1, limit defaults to 10, and the maximum limit is 100. The response contains `data` and a `meta` object with pagination totals.
+
+## 16. Setup for the Extended API
+
+From the `api` directory:
+
+```bash
+npm install
+npx prisma generate
+npx prisma migrate deploy
+```
+
+Add the following values to `.env` before starting the API:
+
+- `DATABASE_URL`: PostgreSQL connection string.
+- `JWT_SECRET`: long, random secret used to sign JWTs.
+- `LIBRARIAN_EMAIL`, `LIBRARIAN_PASSWORD`, and optionally `LIBRARIAN_NAME`: set these to create/update a librarian during database seeding.
+
+Then run:
+
+```bash
+npx prisma db seed
+npm run build
+npm run start:dev
+```
+
+Import `docs/postman_collection.json` into Postman. Log in with the seeded librarian credentials and use the returned access token for book write requests.
+
+## 17. Future Improvements
+
+Potential improvements include book review endpoints, loan and return workflows, refresh tokens, login rate limiting, and API documentation using Swagger.
 - Automated unit and integration tests.
 
-## 15. Author
+## 18. Author
 
 Developed as a Library Management System backend project using NestJS, Prisma, and PostgreSQL.
 
-## 16. License
+## 19. License
 
 This project is developed for educational purposes.
 Invalid switch - "/n### Why does Book reference Genre instead of embedding it?\n\nA book references a genre through the `genreId` foreign key instead of storing the genre name directly. This avoids duplicating information across multiple books and ensures that names remain consistent. It also allows one genre to be associated with many books, making it easier to update genres and query related books. This relational design improves data integrity and reduces data duplication.\n"
