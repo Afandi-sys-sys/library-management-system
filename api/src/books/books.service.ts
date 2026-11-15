@@ -11,7 +11,7 @@ import { FindBooksQueryDto } from './dto/find-books-query.dto.js';
 export class BooksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: FindBooksQueryDto = {}) {
+  async findAll(query: Partial<FindBooksQueryDto> = {}) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
     const search = query.search?.trim();
